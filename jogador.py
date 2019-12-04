@@ -15,8 +15,17 @@ class Jogador(object):
         self.reload_cron = 0
         self.drag = Dragao(self.fiona[0].y, 0)
         self.dragCD = 0
+        self.primeira = True
+       
 
-    def update(self,i,hit_especial,tempo_cd):
+    def update(self,i,hit_especial,tempo_cd,controlar_space):
+        
+        if self.primeira:
+            self.fiona[1].set_total_duration(1000)
+            self.fiona[1].x=self.fiona[0].x
+            self.fiona[1].y=self.fiona[0].y
+            self.primeira = False
+        
 
         if (self.teclado.key_pressed("w")==True
             and self.teclado.key_pressed("s")==False
@@ -48,15 +57,22 @@ class Jogador(object):
         
         
         #IFs para limitar espaço de locomoção da fiona
-        if self.fiona[i].x >= self.window.width-self.fiona[i].width:
+        if self.fiona[i].x >= self.window.width-self.fiona[i].width or self.fiona[i-1].x >= self.window.width-self.fiona[i-1].width:
             self.fiona[i].x = self.window.width-self.fiona[i].width
-        if self.fiona[i].x <=0 :
-            self.fiona[i].x=0
+            self.fiona[i-1].x = self.window.width-self.fiona[i-1].width
         
-        if self.fiona[i].y <= 0:
+        if self.fiona[i].x <=0 or self.fiona[i-1].x <=0 :
+            self.fiona[i].x=0
+            self.fiona[i-1].x=0
+        
+        if self.fiona[i].y <= 0 or self.fiona[i-1].y <= 0:
             self.fiona[i].y=1
-        if self.fiona[i].y>= self.window.height- self.fiona[i].height:
+            self.fiona[i-1].y=1
+
+
+        if self.fiona[i].y>= self.window.height- self.fiona[i].height or self.fiona[i-1].y>= self.window.height- self.fiona[i-1].height:
             self.fiona[i].y = self.window.height- self.fiona[i].height
+            self.fiona[i-1].y = self.window.height- self.fiona[i-1].height
 
         vely = 0
         velx = 0
@@ -100,8 +116,8 @@ class Jogador(object):
         if self.reload_cron > 0:
             self.reload_cron -= 1
         
-        if i==0:
-            self.fiona[0].update()
+        
+        self.fiona[i].update()
         self.fiona[i].draw()
         
         if len(self.vet_tiro)>0:
@@ -121,20 +137,22 @@ class Jogador(object):
 
         if self.dragCD != 0:
             self.dragCD -=1
-        if tempo_cd== 'Pronto' and self.teclado.key_pressed("space"):
+        if tempo_cd== 'Pronto' and self.teclado.key_pressed("space") and controlar_space >= 200:
             hit_especial = 1
             self.drag = Dragao(self.fiona[i].y, 250)
             self.dragCD = 2000
+            controlar_space =0
+           
         
         if self.drag.count > 0:
             self.drag.dragoneza.update()
             self.drag.dragoneza.draw()
-            self.drag.fireBall.x +=10
+            self.drag.fireBall.x +=10 #movimenta a bola de fogo
             self.drag.fireBall.update()
             self.drag.fireBall.draw()
             self.drag.count -= 1
 
-        return i, hit_especial
+        return i, hit_especial,controlar_space
 
                     
 class Tiro(object):

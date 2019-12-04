@@ -3,11 +3,12 @@ from menu import *
 from play import *
 import globais
 from PPlay.sound import*
+from PPlay.gameimage import *
 
 def main():
     window = Window(globais.LARGURA, globais.ALTURA)
     window.set_title("Sequestro do Ogro")
-    window.set_background_color((0,0,0))
+    fundo=GameImage("./Imagens/Assets/shrek.jpg")
     teclado = Window.get_keyboard()
     
    # musica = Sound("./Imagens/som.ogg")
@@ -20,18 +21,19 @@ def main():
     fps=0
     contador = 0
     tempo_decorrido =0
-
+    controlar_space =0 
     menu = Menu(window)
     play = Play(window)
 
     window.update()
     while globais.GAME_RUNNING:
-        window.set_background_color((0, 0, 0))
+        fundo.draw()
         if globais.PLAY_INIT == True:
             play.__init__(window)
             globais.PLAY_INIT = False
         
         tempo_decorrido += window.delta_time()
+        controlar_space +=1
 
         contador += 1
         if tempo_decorrido >=1:
@@ -56,10 +58,10 @@ def main():
         if globais.GAME_STATE == 0:
             menu.run()
         if globais.GAME_STATE == 1:
-    	    hit_especial = play.run(tempo_especial,hit_especial)
+    	    hit_especial,controlar_space = play.run(tempo_especial,hit_especial,controlar_space)
     #DIFICULDADE
         if globais.GAME_STATE == 2:
-    	    menu.diff()
+    	    menu.diff()                             
     #Win
         if globais.GAME_STATE == 3:
             play.wr()

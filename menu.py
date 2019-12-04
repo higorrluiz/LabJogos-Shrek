@@ -7,7 +7,7 @@ import globais
 class Menu(object):
     def __init__(self, window):
         self.window = window
-        self.title = GameImage("./Imagens/Assets/Title.png")
+        self.title = GameImage("./Imagens/Assets/titulo.png")
         self.jogar = GameImage("./Imagens/Assets/Jogar.png")
         self.dificuldade = GameImage("./Imagens/Assets/dificuldade.png")
         self.sair = GameImage("./Imagens/Assets/sair.png")
@@ -38,7 +38,7 @@ class Menu(object):
         self.facil.draw()
 
     def __set_pos(self):
-        self.title.set_position(globais.BORDER  + 30, globais.BORDER + 30)
+        self.title.set_position(globais.BORDER  + 300, globais.BORDER + 60)
         self.jogar.set_position(self.window.width/2 - self.jogar.width / 2, self.jogar.height *1+80*1)
         self.jogar1.set_position(self.window.width/2 - self.jogar1.width / 2, self.jogar1.height *1+80*1)
         self.dificuldade.set_position(self.window.width/2 - self.dificuldade.width/2, self.dificuldade.height* 2+80*2,)

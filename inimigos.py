@@ -1,6 +1,9 @@
 from PPlay.sprite import *
+from PPlay.keyboard import *
 from PPlay.collision import *
+from PPlay.window import* 
 import globais
+
 
 direção = 0
 
@@ -15,17 +18,21 @@ class Mob(object):
         self.dano = dano
         self.sp = sp
         
+        
 
 class Inimigo(object):
-    def __init__(self, window, fase, jogador):
+    def __init__(self, window, fase, jogador,dragao):
         self.window = window
+        self.teclado = Keyboard() 
         self.fase = fase
         self.inimigos = []
         self.__setup()
         self.jogador = jogador
+        self.dragon = dragao
         self.j_pos_x = self.jogador.fiona[0].x
         self.j_pos_y = self.jogador.fiona[0].y
         self.posCD = 100
+        
     
     def __setup(self): #y<350 #x<650
         if self.fase == 1:
@@ -170,6 +177,16 @@ class Inimigo(object):
             mob.sprite_mov.y += mob.vel * mob.vel_y * self.window.delta_time()
             
         for mob in self.inimigos:
+            if self.jogador.drag.count > 0:        
+                if self.jogador.drag.fireBall.collided(mob.sprite_mov):
+                    self.jogador.drag.fireBall.x= 1400
+                    mob.vida -=3
+                if mob.vida <= 0:
+                    self.inimigos.remove(mob)
+                    break
+
+
+                    
             for tiro in self.jogador.vet_tiro:
                 if tiro.bullet.collided(mob.sprite_mov):
                     self.jogador.vet_tiro.remove(tiro)
@@ -177,6 +194,7 @@ class Inimigo(object):
                 if mob.vida <= 0:
                     self.inimigos.remove(mob)
                     break
+                
         
         for mob in self.inimigos:
             mob.sprite_mov.update()

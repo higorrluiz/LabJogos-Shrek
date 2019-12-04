@@ -6,11 +6,13 @@ import globais
 
 class Play(object):
     def __init__(self, window):
+        
         self.window = window
         self.jogador = Jogador(window)
+        self.dragon = Dragao(self.jogador.fiona[0].y, 250)
         self.vidas = 5
         self.cron = 100
-        self.fase = 5
+        self.fase = 1
         self.intro = False
         self.time = 10
         self.timer = 0
@@ -26,7 +28,7 @@ class Play(object):
         self.fundo4.set_position(0,30)
         self.keyboard = Keyboard()
         
-        self.inimigo = Inimigo(self.window, self.fase, self.jogador)
+        self.inimigo = Inimigo(self.window, self.fase, self.jogador,self.dragon)
     
     def wr(self):
         self.window.draw_text(
@@ -76,8 +78,9 @@ class Play(object):
         if self.keyboard.key_pressed("ENTER"):
             globais.PLAY_INIT = True
             globais.GAME_STATE = 0
-    def run(self,tempo_especial,hit_especial):
+    def run(self,tempo_especial,hit_especial,controlar_space):
         global direção
+        
         if self.intro == True:
             self.timer -= self.window.delta_time()
             if self.fase == 0.5:
@@ -98,6 +101,7 @@ class Play(object):
 				    (255,255,255),
 				    "./assets/fonts/pixelmix.ttf",
         	    )
+                self.jogador.primeira = True
             elif self.fase == 2.5:
                 self.window.draw_text(
 				    "Fase 3: Subterraneo do castelo",
@@ -107,6 +111,7 @@ class Play(object):
 				    (255,255,255),
 				    "./assets/fonts/pixelmix.ttf",
         	    )
+                self.jogador.primeira = True
             elif self.fase == 3.5:
                 self.window.draw_text(
 			        "Fase 4: Calabouco",
@@ -116,7 +121,7 @@ class Play(object):
 			        (255,255,255),
 			        "./assets/fonts/pixelmix.ttf",
       	        )
-
+                self.jogador.primeira = True
             elif self.fase == 4.5:
                 self.window.draw_text(
 			        "Fase 5: Sala do Carcereiro",
@@ -126,7 +131,7 @@ class Play(object):
 			        (255,255,255),
 			        "./assets/fonts/pixelmix.ttf",
     	        )
-            
+                self.jogador.primeira = True
             if self.timer <= 0:
                 self.intro = False
 
@@ -150,35 +155,35 @@ class Play(object):
 
 
                 elif self.fase == 1:
-                    self.inimigo.__init__(self.window, self.fase, self.jogador)
+                    self.inimigo.__init__(self.window, self.fase, self.jogador,self.dragon)
             
                 elif self.fase == 1.5:
                     self.intro = True
                     self.timer = 5
 
                 elif self.fase == 2:
-                    self.inimigo.__init__(self.window, self.fase, self.jogador)
+                    self.inimigo.__init__(self.window, self.fase, self.jogador,self.dragon)
                 
                 elif self.fase == 2.5:
                     self.intro = True
                     self.timer = 5
 
                 elif self.fase == 3:
-                    self.inimigo.__init__(self.window, self.fase, self.jogador)
+                    self.inimigo.__init__(self.window, self.fase, self.jogador,self.dragon)
 
                 elif self.fase == 3.5:
                     self.intro = True
                     self.timer = 5
 
                 elif self.fase == 4:
-                    self.inimigo.__init__(self.window, self.fase, self.jogador)
+                    self.inimigo.__init__(self.window, self.fase, self.jogador,self.dragon)
             
                 elif self.fase == 4.5:
                     self.intro = True
                     self.timer = 5
 
                 elif self.fase == 5:
-                    self.inimigo.__init__(self.window, self.fase, self.jogador)
+                    self.inimigo.__init__(self.window, self.fase, self.jogador,self.dragon)
                 
                 else:
                     #self.win = True
@@ -233,7 +238,7 @@ class Play(object):
             if self.cron <= 0:
                 for mob in self.inimigo.inimigos:
                     #if self.cron <=0:
-                    if mob.sprite_mov.collided(self.jogador.fiona):
+                    if mob.sprite_mov.collided(self.jogador.fiona[0]):
                         self.vidas -= mob.dano
                         self.cron = 3
             
@@ -243,7 +248,7 @@ class Play(object):
         
             #runs
             if self.fase == 1 or 2 or 3 or 4 or 5:
-                direção,hit_especial =self.jogador.update(direção,hit_especial,tempo_especial)
+                direção,hit_especial,controlar_space =self.jogador.update(direção,hit_especial,tempo_especial,controlar_space)
                 self.inimigo.update()
-            return hit_especial
+            return hit_especial,controlar_space
 
