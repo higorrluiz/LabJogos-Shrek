@@ -9,8 +9,9 @@ direção = 0
 
 class Mob(object):
     def __init__(self, sprite, frames, time, speed, vida, dano, sp, boss=False):
-        self.sprite_mov = Sprite(sprite, frames)
-        self.sprite_mov.set_total_duration(time)
+        self.sprite_mov = [Sprite(sprite+'.png',frames), Sprite(sprite+'_L'+'.png', frames) ]
+        self.sprite_mov[0].set_total_duration(time)
+        self.sprite_mov[1].set_total_duration(time)
         self.vel = globais.MOB_SPEED*speed #*self.multiplier
         self.vel_x = 0
         self.vel_y = 0
@@ -32,6 +33,9 @@ class Inimigo(object):
         self.j_pos_x = self.jogador.fiona[0].x
         self.j_pos_y = self.jogador.fiona[0].y
         self.posCD = 100
+        self.lado= 34
+       
+      
         
     
     def __setup(self): #y<350 #x<650
@@ -101,7 +105,7 @@ class Inimigo(object):
     def spawn(self,tipo, x, y):
         if tipo == 1:#Guarda
             mob = Mob(
-                "./Imagens/Inimigos/Guarda/Guards_L.png",
+                "./Imagens/Inimigos/Guarda/Guards",
                 4,
                 800,
                 0.75,
@@ -111,7 +115,7 @@ class Inimigo(object):
             )
         elif tipo == 2: #Bruxa
             mob = Mob(
-                "./Imagens/Inimigos/Bruxa/witch_L.png",
+                "./Imagens/Inimigos/Bruxa/witch",
                 3,
                 500,
                 1.5,
@@ -121,7 +125,7 @@ class Inimigo(object):
            )
         elif tipo==3: #Capitao
             mob = Mob(
-                "./Imagens/Inimigos/Capitao/Guards_lance_L.png",
+                "./Imagens/Inimigos/Capitao/Guards_lance",
                 3,
                 800,
                 1,
@@ -131,7 +135,7 @@ class Inimigo(object):
             )
         elif tipo==4: #Martelo
             mob = Mob(
-                "./Imagens/Inimigos/Martelo/Guards_Hammer_L.png",
+                "./Imagens/Inimigos/Martelo/Guards_Hammer",
                 3,
                 1500,
                 0.75,
@@ -142,7 +146,7 @@ class Inimigo(object):
         
         elif tipo==5: #Boss
             mob = Mob(
-                "./Imagens/Inimigos/Boss/Warder_L.png",
+                "./Imagens/Inimigos/Boss/Warder",
                 8,
                 800,
                 0.75,
@@ -151,11 +155,14 @@ class Inimigo(object):
                 1,
                 True
             )
-
-        mob.sprite_mov.set_position(x,y)
-        self.inimigos.append(mob)
+        self.mob=mob.vel
+        mob.sprite_mov[0].set_position(x,y)
+        mob.sprite_mov[1].set_position(x,y)
+        self.inimigos.append(mob.sprite_mov[0])
+        self.inimigos.append(mob.sprite_mov[1])
     
     def update(self):
+        
         if self.posCD <= 0:
             self.j_pos_x = self.jogador.fiona[0].x
             self.j_pos_y = self.jogador.fiona[0].y
@@ -163,44 +170,66 @@ class Inimigo(object):
         else:
             self.posCD -= 1
         
-        for mob in self.inimigos:
-            if self.j_pos_x+self.jogador.fiona[0].width/2 > mob.sprite_mov.x+mob.sprite_mov.width/2:
-                mob.vel_x = 1
-            if self.j_pos_x+self.jogador.fiona[0].width/2 < mob.sprite_mov.x+mob.sprite_mov.width/2:
-                mob.vel_x = -1
-            if self.j_pos_y+self.jogador.fiona[0].height/2 > mob.sprite_mov.y+mob.sprite_mov.height/2:
-                mob.vel_y = 1
-            if self.j_pos_y+self.jogador.fiona[0].height/2 < mob.sprite_mov.y+mob.sprite_mov.height/2:
-                mob.vel_y = -1
+        for indice in range(0,len(self.inimigos),2):
+            if self.j_pos_x+self.jogador.fiona[0].width/2 > self.inimigos[indice].x+self.inimigos[indice].width/2:
+                #andando pra esquerda
+                self.lado = 0
+                self.inimigos[indice].vel_x = 1
+                self.inimigos[indice+1].vel_x = 1
 
-            mob.sprite_mov.x += mob.vel * mob.vel_x * self.window.delta_time()
-            mob.sprite_mov.y += mob.vel * mob.vel_y * self.window.delta_time()
-            
-        for mob in self.inimigos:
+            if self.j_pos_x+self.jogador.fiona[0].width/2 < self.inimigos[indice].x + self.inimigos[indice].width/2:
+                #andando pra direita
+                self.lado = 1
+                self.inimigos[indice].vel_x = -1
+                self.inimigos[indice+1].vel_x = -1
+                
+            if self.j_pos_y+self.jogador.fiona[0].height/2 > self.inimigos[indice].y+self.inimigos[indice].height/2:
+                #andando pra baixo
+                self.inimigos[indice].vel_y = 1
+                self.inimigos[indice+1].vel_y = 1
+            if self.j_pos_y+self.jogador.fiona[0].height/2 < self.inimigos[indice].y+self.inimigos[indice].height/2:
+                #andando pra cima
+                self.inimigos[indice].vel_y = -1
+                self.inimigos[indice+1].vel_y = -1
+
+            self.inimigos[indice].x += self.mob * self.inimigos[indice].vel_x * self.window.delta_time()
+            self.inimigos[indice].y += self.mob * self.inimigos[indice].vel_y * self.window.delta_time()
+            self.inimigos[indice].x += self.mob * self.inimigos[indice].vel_x * self.window.delta_time()
+            self.inimigos[indice].y += self.mob * self.inimigos[indice].vel_y * self.window.delta_time()
+
+            self.inimigos[indice+1].x += self.mob * self.inimigos[indice].vel_x * self.window.delta_time()
+            self.inimigos[indice+1].y += self.mob * self.inimigos[indice].vel_y * self.window.delta_time()
+            self.inimigos[indice+1].x += self.mob * self.inimigos[indice].vel_x * self.window.delta_time()
+            self.inimigos[indice+1].y += self.mob* self.inimigos[indice].vel_y * self.window.delta_time()
+        
+        for indice in range(0,len(self.inimigos),2):
             if self.jogador.drag.count > 0:        
-                if self.jogador.drag.fireBall.collided(mob.sprite_mov):
+                if self.jogador.drag.fireBall.collided(self.inimigos[indice]):
                     self.jogador.drag.fireBall.x= 1400
-                    mob.vida -=3
-                if mob.vida <= 0:
-                    self.inimigos.remove(mob)
+                    self.inimigos[indice].vida -=3
+                    self.inimigos[indice+1].vida -=3
+                if self.inimigos[indice].vida <= 0:
+                    self.inimigos.pop(indice)
+                    self.inimigos.pop(indice+1)
                     break
 
 
                     
             for tiro in self.jogador.vet_tiro:
-                if tiro.bullet.collided(mob.sprite_mov):
+                if tiro.bullet.collided(self.inimigos[indice]):
                     self.jogador.vet_tiro.remove(tiro)
-                    mob.vida -= 1
-                if mob.vida <= 0:
-                    self.inimigos.remove(mob)
+                    self.inimigos[indice].vida -= 1
+                    self.inimigos[indice+1].vida -= 1
+                if self.inimigos[indice].vida <= 0:
+                    self.inimigos.pop(indice)
+                    self.inimigos.pop(indice+1)
                     break
+               
+            if self.lado == 1:
+                i= indice+1
                 
-        
-        for mob in self.inimigos:
-            mob.sprite_mov.update()
-            mob.sprite_mov.draw()
-        
-        
-        
-        
-            
+            if self.lado == 0:
+                i = indice
+                
+            self.inimigos[i].update()
+            self.inimigos[i].draw()
