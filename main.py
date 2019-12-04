@@ -61,7 +61,7 @@ def main():
     	    hit_especial,controlar_space = play.run(tempo_especial,hit_especial,controlar_space)
     #DIFICULDADE
         if globais.GAME_STATE == 2:
-    	    menu.diff()                             
+    	    menu.diff()                                 
     #Win
         if globais.GAME_STATE == 3:
             play.wr()
