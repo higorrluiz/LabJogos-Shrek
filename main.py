@@ -15,9 +15,6 @@ def main():
     
    #aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa musica.play()
     
-    tempo_especial=0
-    hit_especial = 0
-
     fps=0
     contador = 0
     tempo_decorrido =0
@@ -33,19 +30,12 @@ def main():
             globais.PLAY_INIT = False
         
         tempo_decorrido += window.delta_time()
-        controlar_space +=1
 
         contador += 1
         if tempo_decorrido >=1:
             fps = contador
             contador = 0
             tempo_decorrido = 0
-            if hit_especial: #se o especial nao tiver sido ativado acrescenta o contador de tempo
-                tempo_especial+=1
-        
-        if tempo_especial >= 11:
-            tempo_especial = 0
-            hit_especial = 0
         
         window.draw_text(
             "FPS: {}".format(fps),
@@ -57,8 +47,9 @@ def main():
     #MENU
         if globais.GAME_STATE == 0:
             menu.run()
+    #Jogo
         if globais.GAME_STATE == 1:
-    	    hit_especial,controlar_space = play.run(tempo_especial,hit_especial,controlar_space)
+    	    play.run()
     #DIFICULDADE
         if globais.GAME_STATE == 2:
     	    menu.diff()                                 

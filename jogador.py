@@ -13,13 +13,16 @@ class Jogador(object):
         self.fiona[0].set_total_duration(1000)
         self.vet_tiro= []
         self.reload_cron = 0
-        self.drag = Dragao(self.fiona[0].y, 0)
-        self.dragCD = 0
+        self.drag = Dragao(self.fiona[0].y, 0, True)
         self.primeira = True
+        self.tempo_especial = 5
+        self.direcao = 0
        
 
-    def update(self,i,hit_especial,tempo_cd,controlar_space):
-        
+    def update(self):
+
+        i = self.direcao
+
         if self.primeira:
             self.fiona[1].set_total_duration(1000)
             self.fiona[1].x=self.fiona[0].x
@@ -53,7 +56,7 @@ class Jogador(object):
             self.fiona[-1].x += 1
             self.fiona[i].x += 1
         
-        
+        self.direcao = i
         
         
         #IFs para limitar espaço de locomoção da fiona
@@ -76,8 +79,56 @@ class Jogador(object):
 
         vely = 0
         velx = 0
-    
-        if (self.teclado.key_pressed("up")==True
+        
+        if (self.teclado.key_pressed("left")==False #Tiro para diagonal direita-cima
+            and self.teclado.key_pressed("right")==True
+            and self.teclado.key_pressed("up")==True
+            and self.teclado.key_pressed("down")==False
+            and self.reload_cron == 0
+        ):
+            velx = 1
+            vely = -1    
+            bala = Tiro(self.fiona[i].x+(self.fiona[i].width/2), self.fiona[i].y+(self.fiona[i].height/2), velx, vely)
+            self.vet_tiro.append(bala)
+            self.reload_cron = 100
+
+        if (self.teclado.key_pressed("left")==False #Tiro para diagonal direita-baixo
+            and self.teclado.key_pressed("right")==True
+            and self.teclado.key_pressed("up")==False
+            and self.teclado.key_pressed("down")==True
+            and self.reload_cron == 0
+        ):
+            velx = 1
+            vely = 1    
+            bala = Tiro(self.fiona[i].x+(self.fiona[i].width/2), self.fiona[i].y+(self.fiona[i].height/2), velx, vely)
+            self.vet_tiro.append(bala)
+            self.reload_cron = 100   
+
+        if (self.teclado.key_pressed("left")==True #Tiro para diagonal esquerda-cima
+            and self.teclado.key_pressed("right")==False
+            and self.teclado.key_pressed("up")==True
+            and self.teclado.key_pressed("down")==False
+            and self.reload_cron == 0
+        ):
+            velx = -1
+            vely = -1    
+            bala = Tiro(self.fiona[i].x+(self.fiona[i].width/2), self.fiona[i].y+(self.fiona[i].height/2), velx, vely)
+            self.vet_tiro.append(bala)
+            self.reload_cron = 100
+
+        if (self.teclado.key_pressed("left")==True #Tiro para diagonal esquerda-baixo
+            and self.teclado.key_pressed("right")==False
+            and self.teclado.key_pressed("up")==False
+            and self.teclado.key_pressed("down")==True
+            and self.reload_cron == 0
+        ):
+            velx = -1
+            vely = 1    
+            bala = Tiro(self.fiona[i].x+(self.fiona[i].width/2), self.fiona[i].y+(self.fiona[i].height/2), velx, vely)
+            self.vet_tiro.append(bala)
+            self.reload_cron = 100
+        
+        if (self.teclado.key_pressed("up")==True #Tiro para cima
             and self.teclado.key_pressed("down")==False
             and self.reload_cron == 0
         ):
@@ -86,7 +137,7 @@ class Jogador(object):
             self.vet_tiro.append(bala)
             self.reload_cron = 100
 
-        if (self.teclado.key_pressed("up")==False
+        if (self.teclado.key_pressed("up")==False #Tiro para baixo
             and self.teclado.key_pressed("down")==True
             and self.reload_cron == 0
         ):        
@@ -95,7 +146,7 @@ class Jogador(object):
             self.vet_tiro.append(bala)
             self.reload_cron = 100
 
-        if (self.teclado.key_pressed("left")==True
+        if (self.teclado.key_pressed("left")==True #Tiro para esquerda
             and self.teclado.key_pressed("right")==False
             and self.reload_cron == 0
         ):
@@ -104,7 +155,7 @@ class Jogador(object):
             self.vet_tiro.append(bala)
             self.reload_cron = 100
 
-        if (self.teclado.key_pressed("left")==False
+        if (self.teclado.key_pressed("left")==False #Tiro para direita
             and self.teclado.key_pressed("right")==True
             and self.reload_cron == 0
         ):
@@ -135,24 +186,27 @@ class Jogador(object):
                     bala.bullet.update()
                     bala.bullet.draw()
 
-        if self.dragCD != 0:
-            self.dragCD -=1
-        if tempo_cd== 'Pronto' and self.teclado.key_pressed("space") and controlar_space >= 200:
-            hit_especial = 1
-            self.drag = Dragao(self.fiona[i].y, 250)
-            self.dragCD = 2000
-            controlar_space =0
+        if self.tempo_especial >= 1:
+                self.tempo_especial -= self.window.delta_time()
+
+        if self.tempo_especial <=1  and self.teclado.key_pressed("space"):
+            self.drag = Dragao(self.fiona[i].y-self.fiona[i].height, 1)
+            self.tempo_especial = 11
            
         
-        if self.drag.count > 0:
+        if self.drag.Dcount > 0:
             self.drag.dragoneza.update()
             self.drag.dragoneza.draw()
-            self.drag.fireBall.x +=10 #movimenta a bola de fogo
-            self.drag.fireBall.update()
-            self.drag.fireBall.draw()
-            self.drag.count -= 1
+            self.drag.Dcount -= self.window.delta_time()
 
-        return i, hit_especial,controlar_space
+        if self.drag.fireBall.x > self.window.width:
+            self.drag.fireOut = True
+        
+        if self.drag.Dcount <= 0.5:
+            if self.drag.fireOut == False:
+                self.drag.fireBall.x +=250*self.window.delta_time() #movimenta a bola de fogo
+                self.drag.fireBall.update()
+                self.drag.fireBall.draw()
 
                     
 class Tiro(object):
@@ -165,11 +219,12 @@ class Tiro(object):
         self.vel_y = vel_y *self.speed
 
 class Dragao(object):
-    def __init__(self, pos_y, count):
+    def __init__(self, pos_y, count, fire = False):
         self.dragoneza = Sprite("./Imagens/Fiona/Dragao_mov.png", 18)
         self.fireBall = Sprite("./Imagens/Fiona/fireBall.png", 4)
-        self.fireBall.set_total_duration(1000)
+        self.fireBall.set_total_duration(500)
         self.dragoneza.set_total_duration(1000)
         self.dragoneza.set_position(0, pos_y)
         self.fireBall.set_position(self.dragoneza.width,self.dragoneza.y+(self.dragoneza.height/2))
-        self.count = count
+        self.Dcount = count
+        self.fireOut = fire
